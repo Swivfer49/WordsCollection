@@ -8,10 +8,22 @@ namespace WordsCollection.Classes
 {
     internal class Tag
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
         public int Id { get; set; }
         public ConsoleColor Color { get; set; }
 
+        public Tag() {
+
+            Id = 0;
+            foreach (Tag tag in Tags.OrderBy(t => t.Id))
+            {
+                if (tag.Id == Id)
+                {
+                    Id++;
+                }
+            }
+
+        }
         public Tag(string line)
         {
 
@@ -21,13 +33,23 @@ namespace WordsCollection.Classes
             {
                 Name = strings[0];
             }
-            if(strings.Length >= 2)
+
+            Id = 0;
+            foreach(Tag tag in Tags.OrderBy(t=>t.Id))
             {
-                Id = int.Parse(strings[1]);
+                if(tag.Id == Id)
+                {
+                    Id++;
+                }
             }
-            if (strings.Length == 3)
+
+            if (strings.Length == 2)
             {
-                Color = Enum.Parse<ConsoleColor>(strings[2]);
+                Color = Enum.Parse<ConsoleColor>(strings[1]);
+            }
+            else
+            {
+                Color = ConsoleColor.DarkGray;
             }
 
         }
@@ -42,7 +64,7 @@ namespace WordsCollection.Classes
 
         public override string ToString()
         {
-            return $"{Name} {Id} {Color.ToString()}";
+            return $"{Name} {Color}";
         }
 
         public static List<Tag> Tags = new List<Tag>();

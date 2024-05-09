@@ -10,7 +10,7 @@ namespace WordsCollection.Classes
     internal class WordItem
     {
         public string word;
-        public int[] tagIds;
+        public int[] tagIds = new int[0];
 
         public WordItem(string line)
         {
@@ -48,14 +48,14 @@ namespace WordsCollection.Classes
             {
                 tags[i] = Tag.Tags.First(t => t.Id == tagIds[i]).Name;
             }
-            string tagsString = string.Join(",", tags);
+            string tagsString = string.Join(", ", tags);
             return $"{word} - {tagsString}";
         }
 
         public void WriteWord()
         {
             Console.Write(word);
-            Console.Write(' ');
+            Console.Write(" - ");
             Tag[] tags = Tag.Tags.Where(t=>tagIds.Contains(t.Id)).ToArray();
             Tag.WriteTag(tags);
         }
