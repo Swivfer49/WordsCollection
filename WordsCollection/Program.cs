@@ -27,7 +27,7 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(filePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.1 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.2 |");
 
             if (fileExists)
             {
@@ -36,6 +36,7 @@ namespace WordsCollection
             else
             {
                 Console.WriteLine($"No file exists at [{filePath}], no words loaded");
+                Console.WriteLine("A new file will be created upon saving");
             }
 
             while (true)
@@ -44,17 +45,17 @@ namespace WordsCollection
                 string input = Console.ReadLine()!;
 
                 if (input == "") continue;
-                if (input == "Help")
+                if (input == "help")
                 {
                     Help();
                     continue;
                 }
-                if (input == "Save")
+                if (input == "save")
                 {
                     SaveWords(filePath);
                     continue;
                 }
-                if (input == "Exit")
+                if (input == "exit")
                 {
                     Console.WriteLine("Would you like to save? (y/n)");
                     bool validReply = false;
@@ -71,11 +72,11 @@ namespace WordsCollection
                     }
                     break;
                 }
-                if (input == "Clear")
+                if (input == "clear")
                 {
                     Console.Clear();
                 }
-                if(input == "FindWords All")
+                if(input == "findwords all")
                 {
                     foreach(WordItem item in words)
                     {
@@ -83,42 +84,119 @@ namespace WordsCollection
                         Console.WriteLine();
                     }
                 }
-                if (input.StartsWith("CreateWord ")){
+                if (input.StartsWith("createword ")){
                     words.Add(new WordItem(input.Substring(11)));
                 }
-                if(input.StartsWith("CreateTag "))
+                if(input.StartsWith("createtag "))
                 {
                     Tag.Tags.Add(new Tag(input.Substring(10)));
+                }
+                if (input.StartsWith("removeword "))
+                {
+                    string wordName = RemoveStartingString(input, "removeword ");
+                    WordItem? wordInQuestion = GetWord(wordName);
+                    if(wordInQuestion == null)
+                    {
+                        Console.WriteLine($"Word \"{wordName}\" does not exist");
+                    }
+                    else
+                    {
+                        words.Remove(wordInQuestion);
+                        Console.WriteLine($"Removal of \"{wordName}\" is complete");
+                    }
+                }
+                if(input.StartsWith("renameword "))
+                {
+                    string withoutStart = RemoveStartingString(input, "renameword ");
+                    (string oldName, string newName) = SplitOnce(withoutStart, "to");
+                    WordItem? wordInQuestion = GetWord(oldName);
+                    if(wordInQuestion == null)
+                    {
+                        Console.WriteLine($"Word \"{oldName}\" does not exist");
+                    }
+                    else
+                    {
+                        if(newName == "")
+                        {
+                            Console.WriteLine("Invalid Command");
+                        }
+                        else
+                        {
+                            wordInQuestion.word = newName;
+                            Console.WriteLine($"\"{oldName}\" renamed to \"{newName}\"");
+                        }
+                    }
                 }
 
             }
 
         }
 
+        public static (string,string) SplitOnce(string line, string seperator) {
+
+            int index = line.IndexOf(seperator);
+            if (index == -1)
+            {
+                return ("", "");
+            }
+            string first = line.Substring(0, index).Trim();
+            string second = line.Substring(index + seperator.Length).Trim();
+            return (first, second);
+        
+        }
+
+        public static string RemoveStartingString(string line, string startsWith)
+        {
+            return line.Substring(startsWith.Length);
+        }
+        
+        public static void RemoveTagsFromAllWords(Tag[] tagsToRemove)
+        {
+            foreach(WordItem word in words)
+            {
+                List<int> tagIds = word.tagIds.ToList();
+                foreach(Tag tag in tagsToRemove)
+                {
+                    if(tagIds.Contains(tag.Id))
+                        tagIds.Remove(tag.Id);
+                }
+                word.tagIds = tagIds.ToArray();
+            }
+        }
+
+        public static WordItem? GetWord(string name)
+        {
+            return words.FirstOrDefault(word => word.word == name);
+        }
 
         static void Help()
         {
-            Console.WriteLine("\n|Utility Commands|");
-            Console.WriteLine("<>Help -> details all commands");
-            Console.WriteLine("<>Save -> saves all changes to the file");
-            Console.WriteLine("<>Exit -> exits the program, saving if the user wishes");
-            Console.WriteLine("<>Clear -> clears the console");
 
+            //done
+            Console.WriteLine("\n|Utility Commands|");
+            Console.WriteLine("<>help -> details all commands");
+            Console.WriteLine("<>save -> saves all changes to the file");
+            Console.WriteLine("<>exit -> exits the program, saving if the user wishes");
+            Console.WriteLine("<>clear -> clears the console");
+
+            //done
             Console.WriteLine("\n|Word Alterations|");
-            Console.WriteLine("<>CreateWord [WordName] -> adds a new word to the word bank with the name [WordName]");
-            Console.WriteLine("<>RemoveWord [WordName] -> removes the word with the name [WordName] if such word exsists");
-            Console.WriteLine("<>RenameWord [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
+            Console.WriteLine("<>createword [WordName] -> adds a new word to the word bank with the name [WordName]");
+            Console.WriteLine("<>removeword [WordName] -> removes the word with the name [WordName] if such word exsists");
+            Console.WriteLine("<>renameword [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
 
             Console.WriteLine("\n|Tag Alterations|");
-            Console.WriteLine("<>RenameTag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
-            Console.WriteLine("<>CreateTag [TagName] -> creates a new tag named [TagName]");
+            Console.WriteLine("<>renametag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
+            Console.WriteLine("<>createtag [TagName] -> creates a new tag named [TagName]");
+            Console.WriteLine("<>color [TagName] [Color] -> sets the color of [TagName] to [Color]");
+            Console.WriteLine("<>deletetag [TagName] -> deletes [TagName] and removes it from all words");
 
             Console.WriteLine("\n|Basic Word Searching|");
-            Console.WriteLine("<>FindWords StartsWith [string] -> lists all words that start with [string]");
-            Console.WriteLine("<>FindWords EndsWith [string] -> lists all words that end with [string]");
-            Console.WriteLine("<>FindWords Contains [string] -> lists all words that contain [string]");
-            Console.WriteLine("<>FindWords [WordName] -> finds the word named [WordName]");
-            Console.WriteLine("<>FindWords All -> lists all words");
+            Console.WriteLine("<>findwords startswith [string] -> lists all words that start with [string]");
+            Console.WriteLine("<>findwords endswith [string] -> lists all words that end with [string]");
+            Console.WriteLine("<>findwords contains [string] -> lists all words that contain [string]");
+            Console.WriteLine("<>findwords [WordName] -> finds the word named [WordName]");
+            Console.WriteLine("<>findwords all -> lists all words");
 
             Console.WriteLine("\n|Word Searching Using Tags|");
             Console.WriteLine("<>FindWords WithTag [TagName] -> lists all words that have the tag [TagName]");
@@ -127,9 +205,11 @@ namespace WordsCollection
             Console.WriteLine("\n|Tagging Words|");
             Console.WriteLine("<>AddTag [TagName] to [WordName] -> adds the tag [TagName] to the word [WordName]");
             Console.WriteLine("<>AddTags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
+            Console.WriteLine("<>RemoveTag [TagName] from [WordName] -> removes [TagName] from [WordName]");
+            Console.WriteLine("<>RemoveTags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
+            Console.WriteLine("<>SetTagsOf [WordName] to [Tag1], [Tag2],... -> sets the tags of [WordName] to the list of tags");
 
             Console.WriteLine("\n||");
-            Console.WriteLine("<>SetTags -> ");
             Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");

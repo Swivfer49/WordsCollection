@@ -85,5 +85,40 @@ namespace WordsCollection.Classes
                 }
             }
         }
+
+        public static Tag[] StringToTags(string line)
+        {
+            List<Tag> tags = new List<Tag>();
+            string[] tagStrings = line.Split(',', StringSplitOptions.TrimEntries);
+            foreach(string tagString in tagStrings)
+            {
+                Tag? tagInQuestion = GetTag(tagString);
+                if(tagInQuestion != null)
+                {
+                    tags.Add(tagInQuestion);
+                }
+            }
+            return tags.ToArray();
+        }
+
+        public static int[] StringToTagIds(string line)
+        {
+            List<int> tagIds = new List<int>();
+            string[] tagStrings = line.Split(',', StringSplitOptions.TrimEntries);
+            foreach (string tagString in tagStrings)
+            {
+                Tag? tagInQuestion = GetTag(tagString);
+                if (tagInQuestion != null)
+                {
+                    tagIds.Add(tagInQuestion.Id);
+                }
+            }
+            return tagIds.ToArray();
+        }
+
+        public static Tag? GetTag(string name)
+        {
+            return Tags.FirstOrDefault(tag => tag.Name == name);
+        }
     }
 }
