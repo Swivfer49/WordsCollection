@@ -45,7 +45,7 @@ namespace WordsCollection.Classes
 
             if (strings.Length == 2)
             {
-                Color = Enum.Parse<ConsoleColor>(strings[1]);
+                Color = Enum.Parse<ConsoleColor>(strings[1], true);
             }
             else
             {

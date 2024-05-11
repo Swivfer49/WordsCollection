@@ -7,18 +7,18 @@ namespace WordsCollection
         static List<WordItem> words = new List<WordItem>();
         static void Main(string[] args)
         {
-            if(args.Length == 1)
+            string name = "WordCollection";
+            while (true)
             {
-                MenuLoop(args[0]);
-            }
-            else
-            {
-                MenuLoop("WordCollection");
+                name = MenuLoop(name);
+                if (name == "") break;
             }
         }
 
-        static void MenuLoop(string fileName)
+        static string MenuLoop(string fileName)
         {
+            string ReturnName = "";
+
             string filePath = $"./{fileName}.txt";
 
             //tries to load the file
@@ -27,7 +27,7 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(filePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.2 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.3 |");
 
             if (fileExists)
             {
@@ -41,21 +41,21 @@ namespace WordsCollection
 
             while (true)
             {
-                Console.Write("<>");
+                Console.Write($"<{fileName}>");
                 string input = Console.ReadLine()!;
 
                 if (input == "") continue;
-                if (input == "help")
+                else if (input == "help")
                 {
                     Help();
                     continue;
                 }
-                if (input == "save")
+                else if (input == "save")
                 {
                     SaveWords(filePath);
                     continue;
                 }
-                if (input == "exit")
+                else if (input == "exit")
                 {
                     Console.WriteLine("Would you like to save? (y/n)");
                     bool validReply = false;
@@ -72,11 +72,11 @@ namespace WordsCollection
                     }
                     break;
                 }
-                if (input == "clear")
+                else if (input == "clear")
                 {
                     Console.Clear();
                 }
-                if(input == "findwords all")
+                else if(input == "findwords all")
                 {
                     foreach(WordItem item in words)
                     {
@@ -84,14 +84,14 @@ namespace WordsCollection
                         Console.WriteLine();
                     }
                 }
-                if (input.StartsWith("createword ")){
+                else if (input.StartsWith("createword ")){
                     words.Add(new WordItem(input.Substring(11)));
                 }
-                if(input.StartsWith("createtag "))
+                else if(input.StartsWith("createtag "))
                 {
                     Tag.Tags.Add(new Tag(input.Substring(10)));
                 }
-                if (input.StartsWith("removeword "))
+                else if (input.StartsWith("removeword "))
                 {
                     string wordName = RemoveStartingString(input, "removeword ");
                     WordItem? wordInQuestion = GetWord(wordName);
@@ -105,10 +105,10 @@ namespace WordsCollection
                         Console.WriteLine($"Removal of \"{wordName}\" is complete");
                     }
                 }
-                if(input.StartsWith("renameword "))
+                else if(input.StartsWith("renameword "))
                 {
                     string withoutStart = RemoveStartingString(input, "renameword ");
-                    (string oldName, string newName) = SplitOnce(withoutStart, "to");
+                    (string oldName, string newName) = SplitOnce(withoutStart, " to ");
                     WordItem? wordInQuestion = GetWord(oldName);
                     if(wordInQuestion == null)
                     {
@@ -127,8 +127,174 @@ namespace WordsCollection
                         }
                     }
                 }
+                else if(input.StartsWith("renametag "))
+                {
+                    string withoutStart = RemoveStartingString(input, "renametag ");
+                    (string oldName, string newName) = SplitOnce(withoutStart, " to ");
+                    Tag? tagInQuestion = Tag.GetTag(oldName);
+                    if (tagInQuestion == null)
+                    {
+                        Console.WriteLine($"Tag \"{oldName}\" does not exist");
+                    }
+                    else
+                    {
+                        if (newName == "")
+                        {
+                            Console.WriteLine("Invalid Command");
+                        }
+                        else
+                        {
+                            tagInQuestion.Name = newName;
+                            Console.WriteLine($"\"{oldName}\" renamed to \"{newName}\"");
+                        }
+                    }
+                }
+                else if(input.StartsWith("color "))
+                {
+                    string withoutStart = RemoveStartingString(input, "color ").Trim();
+                    (string tagName, string colorName) = SplitOnce(withoutStart, " ");
+                    if(tagName == "" || colorName == "")
+                    {
+                        Console.WriteLine("Invalid Command");
+                    }
+                    else
+                    {
+                        Tag? tagInQuestion = Tag.GetTag(tagName);
+
+                        if(Enum.TryParse<ConsoleColor>(colorName,true, out ConsoleColor color) && tagInQuestion != null)
+                        {
+                            tagInQuestion.Color = color;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid Command");
+                        }
+                    }
+                }
+                else if(input.StartsWith("deletetag "))
+                {
+                    string tagName = RemoveStartingString(input, "deletetag ").Trim();
+                    Tag? tagInQuestion = Tag.GetTag(tagName);
+                    if(tagInQuestion == null)
+                    {
+                        Console.WriteLine($"Tag \"{tagName}\" does not exist");
+                    }
+                    else
+                    {
+                        RemoveTagsFromAllWords(new Tag[] {tagInQuestion});
+                        Tag.Tags.Remove(tagInQuestion);
+                        Console.WriteLine($"Tag \"{tagName}\" no longer exists");
+                    }
+                }
+                else if (input.StartsWith("deletetags "))
+                {
+                    string tagList = RemoveStartingString(input, "deletetag ").Trim();
+                    Tag[] tags = Tag.StringToTags(tagList);
+
+                    if (tags.Length == 0)
+                    {
+                        Console.WriteLine("No valid tags listed");
+                    }
+                    else
+                    {
+                        RemoveTagsFromAllWords(tags);
+                        foreach(Tag tag in tags )
+                        {
+                            Console.Write("Removed tag: ");
+                            tag.WriteTag();
+                            Console.WriteLine();
+                            Tag.Tags.Remove(tag);
+                        }
+                    }
+                }
+                else if(input.StartsWith("addtags "))
+                {
+                    (string tagsString, string wordName) = SplitOnce(
+                        RemoveStartingString(input, "addtag "),
+                        " to "
+                    );
+                    if(tagsString == "" || wordName == "")
+                    {
+                        Console.WriteLine("Invalid Command");
+                        continue;
+                    }
+                    Tag[] tagsToAdd = Tag.StringToTags(tagsString);
+                    if(tagsToAdd.Length == 0)
+                    {
+                        Console.WriteLine("No Valid Tags Listed");
+                        continue;
+                    }
+                    WordItem? wordInQuestion = GetWord(wordName);
+                    if(wordInQuestion == null)
+                    {
+                        Console.WriteLine("Word does not exsist");
+                        continue;
+                    }
+                    HashSet<int> tagIds = tagsToAdd.Select(tag=>tag.Id).ToHashSet();
+                    wordInQuestion.tagIds = tagIds.Concat(wordInQuestion.tagIds).ToArray();
+                    wordInQuestion.WriteWord();
+                    Console.WriteLine();
+                }
+                else if (input.StartsWith("forcetags "))
+                {
+                    (string tagsString, string wordName) = SplitOnce(
+                        RemoveStartingString(input, "forcetags "),
+                        " on "
+                    );
+                    if (tagsString == "" || wordName == "")
+                    {
+                        Console.WriteLine("Invalid Command");
+                        continue;
+                    }
+                    Tag[] tagsToAdd = Tag.StringToTags(tagsString);
+                    if (tagsToAdd.Length == 0)
+                    {
+                        Console.WriteLine("No Valid Tags Listed");
+                        continue;
+                    }
+                    WordItem? wordInQuestion = GetWord(wordName);
+                    if (wordInQuestion == null)
+                    {
+                        Console.WriteLine("Word does not exsist");
+                        continue;
+                    }
+                    HashSet<int> tagIds = tagsToAdd.Select(tag => tag.Id).ToHashSet();
+                    wordInQuestion.tagIds = tagIds.ToArray();
+                    wordInQuestion.WriteWord();
+                    Console.WriteLine();
+                }
+                else if(input.StartsWith("switchfile "))
+                {
+                    string newName = RemoveStartingString(input, "switchfile ").Trim();
+                    if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) == -1)
+                    {
+                        ReturnName = newName;
+                        Console.WriteLine("Would you like to save? (y/n)");
+                        bool validReply = false;
+                        while (!validReply)
+                        {
+                            char c = Console.ReadKey().KeyChar;
+                            if (c == 'y')
+                            {
+                                SaveWords(filePath);
+                                validReply = true;
+                            }
+                            else if (c == 'n')
+                                validReply = true;
+                        }
+                        words = new();
+                        Tag.Tags = new();
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid File Name");
+                    }
+                }
 
             }
+
+            return ReturnName;
 
         }
 
@@ -178,6 +344,7 @@ namespace WordsCollection
             Console.WriteLine("<>save -> saves all changes to the file");
             Console.WriteLine("<>exit -> exits the program, saving if the user wishes");
             Console.WriteLine("<>clear -> clears the console");
+            Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");//not done
 
             //done
             Console.WriteLine("\n|Word Alterations|");
@@ -185,6 +352,7 @@ namespace WordsCollection
             Console.WriteLine("<>removeword [WordName] -> removes the word with the name [WordName] if such word exsists");
             Console.WriteLine("<>renameword [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
 
+            //done
             Console.WriteLine("\n|Tag Alterations|");
             Console.WriteLine("<>renametag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
             Console.WriteLine("<>createtag [TagName] -> creates a new tag named [TagName]");
@@ -199,18 +367,17 @@ namespace WordsCollection
             Console.WriteLine("<>findwords all -> lists all words");
 
             Console.WriteLine("\n|Word Searching Using Tags|");
-            Console.WriteLine("<>FindWords WithTag [TagName] -> lists all words that have the tag [TagName]");
-            Console.WriteLine("<>FindWords WithTags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
+            Console.WriteLine("<>findwords withtags [TagName] -> lists all words that have the tag [TagName]");
+            Console.WriteLine("<>findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
 
             Console.WriteLine("\n|Tagging Words|");
-            Console.WriteLine("<>AddTag [TagName] to [WordName] -> adds the tag [TagName] to the word [WordName]");
-            Console.WriteLine("<>AddTags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
-            Console.WriteLine("<>RemoveTag [TagName] from [WordName] -> removes [TagName] from [WordName]");
-            Console.WriteLine("<>RemoveTags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
-            Console.WriteLine("<>SetTagsOf [WordName] to [Tag1], [Tag2],... -> sets the tags of [WordName] to the list of tags");
+            Console.WriteLine("<>addtags [TagName] to [WordName] -> adds the tag [TagName] to the word [WordName]");
+            Console.WriteLine("<>addtags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
+            Console.WriteLine("<>removetags [TagName] from [WordName] -> removes [TagName] from [WordName]");
+            Console.WriteLine("<>removetags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
+            Console.WriteLine("<>forcetags [Tag1], [Tag2],... on [WordName] -> sets the tags of [WordName] to the list of tags");
 
             Console.WriteLine("\n||");
-            Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
