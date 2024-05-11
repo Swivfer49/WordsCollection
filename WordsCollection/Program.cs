@@ -27,7 +27,7 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(filePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.4 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.5 |");
 
             if (fileExists)
             {
@@ -133,6 +133,26 @@ namespace WordsCollection
                         filteredWords = filteredWords.Where(
                             word => tags.All(
                                 tag=>word.tagIds.Contains(tag.Id)
+                            )
+                        ).ToList();
+                    }
+                    else if (selector.StartsWith("withouttags "))
+                    {
+                        string requirement = RemoveStartingString(selector, "withouttags ").Trim();
+                        if (requirement == "")
+                        {
+                            Console.WriteLine("Invalid selector");
+                            continue;
+                        }
+                        Tag[] tags = Tag.StringToTags(requirement);
+                        if (tags.Length == 0)
+                        {
+                            Console.WriteLine("No valid tags listed");
+                            continue;
+                        }
+                        filteredWords = filteredWords.Where(
+                            word => !tags.Any(
+                                tag => word.tagIds.Contains(tag.Id)
                             )
                         ).ToList();
                     }
@@ -369,6 +389,34 @@ namespace WordsCollection
                         Console.WriteLine("Invalid File Name");
                     }
                 }
+                else if (input.StartsWith("removetags "))
+                {
+                    (string tagsString, string wordName) = SplitOnce(
+                        RemoveStartingString(input, "removetag "),
+                        " from "
+                    );
+                    if (tagsString == "" || wordName == "")
+                    {
+                        Console.WriteLine("Invalid Command");
+                        continue;
+                    }
+                    Tag[] tagsToRemove = Tag.StringToTags(tagsString);
+                    if (tagsToRemove.Length == 0)
+                    {
+                        Console.WriteLine("No Valid Tags Listed");
+                        continue;
+                    }
+                    WordItem? wordInQuestion = GetWord(wordName);
+                    if (wordInQuestion == null)
+                    {
+                        Console.WriteLine("Word does not exsist");
+                        continue;
+                    }
+                    HashSet<int> tagIds = tagsToRemove.Select(tag => tag.Id).ToHashSet();
+                    wordInQuestion.tagIds = wordInQuestion.tagIds.Where(id=>!tagIds.Contains(id)).ToArray();
+                    wordInQuestion.WriteWord();
+                    Console.WriteLine();
+                }
 
             }
 
@@ -449,7 +497,11 @@ namespace WordsCollection
             Console.WriteLine("\n|Word Searching Using Tags|");
             Console.WriteLine("<>findwords withtags [TagName] -> lists all words that have the tag [TagName]");
             Console.WriteLine("<>findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
+            //
+            Console.WriteLine("<>findwords withouttags [TagName] -> lists all words that have the tag [TagName]");
+            Console.WriteLine("<>findwords withouttags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
 
+            //done
             Console.WriteLine("\n|Tagging Words|");
             Console.WriteLine("<>addtags [TagName] to [WordName] -> adds the tag [TagName] to the word [WordName]");
             Console.WriteLine("<>addtags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
