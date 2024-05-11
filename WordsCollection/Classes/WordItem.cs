@@ -9,7 +9,7 @@ namespace WordsCollection.Classes
 {
     internal class WordItem
     {
-        public string word;
+        public string word = "";
         public int[] tagIds = new int[0];
 
         public WordItem(string line)
@@ -28,7 +28,7 @@ namespace WordsCollection.Classes
                 for (int i = 0; i < tagStrings.Length; i++) 
                 {
 
-                    Tag tag = Tag.Tags.FirstOrDefault(t => t.Name == tagStrings[i]);
+                    Tag? tag = Tag.Tags.FirstOrDefault(t => t.Name == tagStrings[i]);
 
                     if(tag != null)
                     {

@@ -188,11 +188,17 @@ namespace WordsCollection
                     Console.WriteLine();
                 }
                 else if (input.StartsWith("createword ")){
-                    words.Add(new WordItem(input.Substring(11)));
+                    WordItem wordToAdd = new WordItem(input.Substring(11));
+                    if (wordToAdd.word.Length == 0)
+                        continue;
+                    words.Add(wordToAdd);
                 }
                 else if(input.StartsWith("createtag "))
                 {
-                    Tag.Tags.Add(new Tag(input.Substring(10)));
+                    Tag tagToAdd = new Tag(input.Substring(10));
+                    if(tagToAdd.Name.Length == 0)
+                        continue;
+                    Tag.Tags.Add(tagToAdd);
                 }
                 else if (input.StartsWith("removeword "))
                 {
@@ -533,7 +539,7 @@ namespace WordsCollection
                 while (isStillSeeingTags)
                 {
 
-                    string line = streamReader.ReadLine();
+                    string line = streamReader.ReadLine()!;
 
                     if(line.Trim() == "WordsBegin")
                     {
@@ -551,14 +557,14 @@ namespace WordsCollection
                 while (!streamReader.EndOfStream)
                 {
 
-                    string line = streamReader.ReadLine();
+                    string line = streamReader.ReadLine()!;
 
                     WordItem word = new WordItem(line);
 
-                    if(word.word.Length > 0)
-                    {
-                        words.Add(word);
-                    }
+                    if (word.word.Length == 0)
+                        continue;
+                    words.Add(word);
+                   
 
                 }
 
