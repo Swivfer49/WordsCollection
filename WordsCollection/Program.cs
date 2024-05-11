@@ -27,7 +27,7 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(filePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.3 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.4 |");
 
             if (fileExists)
             {
@@ -76,13 +76,91 @@ namespace WordsCollection
                 {
                     Console.Clear();
                 }
-                else if(input == "findwords all")
+                else if(input.StartsWith("findwords "))
                 {
-                    foreach(WordItem item in words)
+                    List<WordItem> filteredWords = words.ToList();
+                    string selector = RemoveStartingString(input, "findwords ").Trim();
+
+                    if(selector == "")
+                    {
+                        Console.WriteLine("No Selector Specified");
+                        continue;
+                    }
+                    else if(selector.StartsWith("startswith "))
+                    {
+                        string requirement = RemoveStartingString(selector, "startswith ").Trim();
+                        if (requirement == "")
+                        {
+                            Console.WriteLine("Invalid selector");
+                            continue;
+                        }
+                        filteredWords = filteredWords.Where(word=>word.word.StartsWith(requirement)).ToList();
+                    }
+                    else if (selector.StartsWith("contains "))
+                    {
+                        string requirement = RemoveStartingString(selector, "contains ").Trim();
+                        if (requirement == "")
+                        {
+                            Console.WriteLine("Invalid selector");
+                            continue;
+                        }
+                        filteredWords = filteredWords.Where(word => word.word.Contains(requirement)).ToList();
+                    }
+                    else if (selector.StartsWith("endswith "))
+                    {
+                        string requirement = RemoveStartingString(selector, "endswith ").Trim();
+                        if(requirement == "")
+                        {
+                            Console.WriteLine("Invalid selector");
+                            continue;
+                        }
+                        filteredWords = filteredWords.Where(word => word.word.EndsWith(requirement)).ToList();
+                    }
+                    else if(selector.StartsWith("withtags "))
+                    {
+                        string requirement = RemoveStartingString(selector, "withtags ").Trim();
+                        if (requirement == "")
+                        {
+                            Console.WriteLine("Invalid selector");
+                            continue;
+                        }
+                        Tag[] tags = Tag.StringToTags(requirement);
+                        if(tags.Length == 0)
+                        {
+                            Console.WriteLine("No valid tags listed");
+                            continue;
+                        }
+                        filteredWords = filteredWords.Where(
+                            word => tags.All(
+                                tag=>word.tagIds.Contains(tag.Id)
+                            )
+                        ).ToList();
+                    }
+                    else if (selector == "all") { }
+                    else
+                    {
+                        Console.WriteLine("Invalid selector");
+                        continue;
+                    }
+
+
+                    foreach (WordItem item in filteredWords)
                     {
                         item.WriteWord();
                         Console.WriteLine();
                     }
+                }
+                else if(input.StartsWith("findword "))
+                {
+                    string wordName = RemoveStartingString(input, "findword ").Trim();
+                    WordItem? wordInQuestion = GetWord(wordName);
+                    if(wordInQuestion == null)
+                    {
+                        Console.WriteLine($"Word: [{wordName}] does not exist");
+                        continue;
+                    }
+                    wordInQuestion.WriteWord();
+                    Console.WriteLine();
                 }
                 else if (input.StartsWith("createword ")){
                     words.Add(new WordItem(input.Substring(11)));
@@ -344,7 +422,7 @@ namespace WordsCollection
             Console.WriteLine("<>save -> saves all changes to the file");
             Console.WriteLine("<>exit -> exits the program, saving if the user wishes");
             Console.WriteLine("<>clear -> clears the console");
-            Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");//not done
+            Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");
 
             //done
             Console.WriteLine("\n|Word Alterations|");
@@ -359,13 +437,15 @@ namespace WordsCollection
             Console.WriteLine("<>color [TagName] [Color] -> sets the color of [TagName] to [Color]");
             Console.WriteLine("<>deletetag [TagName] -> deletes [TagName] and removes it from all words");
 
+            //done
             Console.WriteLine("\n|Basic Word Searching|");
             Console.WriteLine("<>findwords startswith [string] -> lists all words that start with [string]");
             Console.WriteLine("<>findwords endswith [string] -> lists all words that end with [string]");
             Console.WriteLine("<>findwords contains [string] -> lists all words that contain [string]");
-            Console.WriteLine("<>findwords [WordName] -> finds the word named [WordName]");
             Console.WriteLine("<>findwords all -> lists all words");
+            Console.WriteLine("<>findword [WordName] -> finds the word named [WordName]");
 
+            //done
             Console.WriteLine("\n|Word Searching Using Tags|");
             Console.WriteLine("<>findwords withtags [TagName] -> lists all words that have the tag [TagName]");
             Console.WriteLine("<>findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
@@ -378,7 +458,7 @@ namespace WordsCollection
             Console.WriteLine("<>forcetags [Tag1], [Tag2],... on [WordName] -> sets the tags of [WordName] to the list of tags");
 
             Console.WriteLine("\n||");
-            Console.WriteLine("<> -> ");
+            Console.WriteLine("<>generateword -> ");
             Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
         }
