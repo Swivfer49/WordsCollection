@@ -76,6 +76,11 @@ namespace WordsCollection
                 {
                     Console.Clear();
                 }
+                else if(input == "showtags")
+                {
+                    Tag.WriteTag(Tag.Tags.ToArray());
+                    Console.WriteLine();
+                }
                 else if(input.StartsWith("findwords "))
                 {
                     List<WordItem> filteredWords = words.ToList();
@@ -471,6 +476,7 @@ namespace WordsCollection
             Console.WriteLine("<>exit -> exits the program, saving if the user wishes");
             Console.WriteLine("<>clear -> clears the console");
             Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");
+            Console.WriteLine("<>showtags -> shows all tags");
 
             //done
             Console.WriteLine("\n|Word Alterations|");
@@ -511,7 +517,6 @@ namespace WordsCollection
 
             Console.WriteLine("\n||");
             Console.WriteLine("<>generateword -> ");
-            Console.WriteLine("<> -> ");
             Console.WriteLine("<> -> ");
         }
 

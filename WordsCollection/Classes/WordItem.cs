@@ -49,15 +49,25 @@ namespace WordsCollection.Classes
                 tags[i] = Tag.Tags.First(t => t.Id == tagIds[i]).Name;
             }
             string tagsString = string.Join(", ", tags);
-            return $"{word} - {tagsString}";
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(word);
+            if(tagsString.Length > 0)
+            {
+                stringBuilder.Append(" - ");
+                stringBuilder.Append(tagsString);
+            }
+            return stringBuilder.ToString();
         }
 
         public void WriteWord()
         {
             Console.Write(word);
-            Console.Write(" - ");
-            Tag[] tags = Tag.Tags.Where(t=>tagIds.Contains(t.Id)).ToArray();
-            Tag.WriteTag(tags);
+            if(tagIds.Length > 0)
+            {
+                Console.Write(" - ");
+                Tag[] tags = Tag.Tags.Where(t=>tagIds.Contains(t.Id)).ToArray();
+                Tag.WriteTag(tags);
+            }
         }
     }
 }
