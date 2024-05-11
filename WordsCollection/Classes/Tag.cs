@@ -63,10 +63,7 @@ namespace WordsCollection.Classes
 
         public void WriteTag()
         {
-            ConsoleColor pColor = Console.ForegroundColor;
-            Console.ForegroundColor = Color;
-            Console.Write(Name);
-            Console.ForegroundColor = pColor;
+            ColorConsole.WriteColor(Name, Color);
         }
 
         public override string ToString()

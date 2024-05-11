@@ -41,19 +41,17 @@ namespace WordsCollection
 
             while (true)
             {
-                Console.Write($"<{fileName}>");
+                ColorConsole.WriteColor($"<{fileName}>",ConsoleColor.DarkMagenta);
                 string input = Console.ReadLine()!;
 
                 if (input == "") continue;
                 else if (input == "help")
                 {
                     Help();
-                    continue;
                 }
                 else if (input == "save")
                 {
                     SaveWords(filePath);
-                    continue;
                 }
                 else if (input == "exit")
                 {
@@ -88,7 +86,7 @@ namespace WordsCollection
 
                     if(selector == "")
                     {
-                        Console.WriteLine("No Selector Specified");
+                        ColorConsole.WriteError("No Selector Specified");
                         continue;
                     }
                     else if(selector.StartsWith("startswith "))
@@ -96,7 +94,7 @@ namespace WordsCollection
                         string requirement = RemoveStartingString(selector, "startswith ").Trim();
                         if (requirement == "")
                         {
-                            Console.WriteLine("Invalid selector");
+                            ColorConsole.WriteError("Invalid selector");
                             continue;
                         }
                         filteredWords = filteredWords.Where(word=>word.word.StartsWith(requirement)).ToList();
@@ -106,7 +104,7 @@ namespace WordsCollection
                         string requirement = RemoveStartingString(selector, "contains ").Trim();
                         if (requirement == "")
                         {
-                            Console.WriteLine("Invalid selector");
+                            ColorConsole.WriteError("Invalid selector");
                             continue;
                         }
                         filteredWords = filteredWords.Where(word => word.word.Contains(requirement)).ToList();
@@ -116,7 +114,7 @@ namespace WordsCollection
                         string requirement = RemoveStartingString(selector, "endswith ").Trim();
                         if(requirement == "")
                         {
-                            Console.WriteLine("Invalid selector");
+                            ColorConsole.WriteError("Invalid selector");
                             continue;
                         }
                         filteredWords = filteredWords.Where(word => word.word.EndsWith(requirement)).ToList();
@@ -126,13 +124,13 @@ namespace WordsCollection
                         string requirement = RemoveStartingString(selector, "withtags ").Trim();
                         if (requirement == "")
                         {
-                            Console.WriteLine("Invalid selector");
+                            ColorConsole.WriteError("Invalid selector");
                             continue;
                         }
                         Tag[] tags = Tag.StringToTags(requirement);
                         if(tags.Length == 0)
                         {
-                            Console.WriteLine("No valid tags listed");
+                            ColorConsole.WriteError("No valid tags listed");
                             continue;
                         }
                         filteredWords = filteredWords.Where(
@@ -146,13 +144,13 @@ namespace WordsCollection
                         string requirement = RemoveStartingString(selector, "withouttags ").Trim();
                         if (requirement == "")
                         {
-                            Console.WriteLine("Invalid selector");
+                            ColorConsole.WriteError("Invalid selector");
                             continue;
                         }
                         Tag[] tags = Tag.StringToTags(requirement);
                         if (tags.Length == 0)
                         {
-                            Console.WriteLine("No valid tags listed");
+                            ColorConsole.WriteError("No valid tags listed");
                             continue;
                         }
                         filteredWords = filteredWords.Where(
@@ -164,7 +162,7 @@ namespace WordsCollection
                     else if (selector == "all") { }
                     else
                     {
-                        Console.WriteLine("Invalid selector");
+                        ColorConsole.WriteError("Invalid selector");
                         continue;
                     }
 
@@ -206,7 +204,7 @@ namespace WordsCollection
                     WordItem? wordInQuestion = GetWord(wordName);
                     if(wordInQuestion == null)
                     {
-                        Console.WriteLine($"Word \"{wordName}\" does not exist");
+                        ColorConsole.InvalidWordName(wordName);
                     }
                     else
                     {
@@ -221,13 +219,13 @@ namespace WordsCollection
                     WordItem? wordInQuestion = GetWord(oldName);
                     if(wordInQuestion == null)
                     {
-                        Console.WriteLine($"Word \"{oldName}\" does not exist");
+                        ColorConsole.InvalidWordName(oldName);
                     }
                     else
                     {
                         if(newName == "")
                         {
-                            Console.WriteLine("Invalid Command");
+                            ColorConsole.InvalidCommand();
                         }
                         else
                         {
@@ -243,13 +241,13 @@ namespace WordsCollection
                     Tag? tagInQuestion = Tag.GetTag(oldName);
                     if (tagInQuestion == null)
                     {
-                        Console.WriteLine($"Tag \"{oldName}\" does not exist");
+                        ColorConsole.InvalidWordName(oldName);
                     }
                     else
                     {
                         if (newName == "")
                         {
-                            Console.WriteLine("Invalid Command");
+                            ColorConsole.InvalidCommand();
                         }
                         else
                         {
@@ -264,7 +262,7 @@ namespace WordsCollection
                     (string tagName, string colorName) = SplitOnce(withoutStart, " ");
                     if(tagName == "" || colorName == "")
                     {
-                        Console.WriteLine("Invalid Command");
+                        ColorConsole.InvalidCommand();
                     }
                     else
                     {
@@ -276,7 +274,7 @@ namespace WordsCollection
                         }
                         else
                         {
-                            Console.WriteLine("Invalid Command");
+                            ColorConsole.InvalidCommand();
                         }
                     }
                 }
@@ -286,7 +284,7 @@ namespace WordsCollection
                     Tag? tagInQuestion = Tag.GetTag(tagName);
                     if(tagInQuestion == null)
                     {
-                        Console.WriteLine($"Tag \"{tagName}\" does not exist");
+                        ColorConsole.InvalidTagName(tagName);
                     }
                     else
                     {
@@ -302,7 +300,7 @@ namespace WordsCollection
 
                     if (tags.Length == 0)
                     {
-                        Console.WriteLine("No valid tags listed");
+                        ColorConsole.NoValidTags();
                     }
                     else
                     {
@@ -324,19 +322,19 @@ namespace WordsCollection
                     );
                     if(tagsString == "" || wordName == "")
                     {
-                        Console.WriteLine("Invalid Command");
+                        ColorConsole.InvalidCommand();
                         continue;
                     }
                     Tag[] tagsToAdd = Tag.StringToTags(tagsString);
                     if(tagsToAdd.Length == 0)
                     {
-                        Console.WriteLine("No Valid Tags Listed");
+                        ColorConsole.NoValidTags();
                         continue;
                     }
                     WordItem? wordInQuestion = GetWord(wordName);
                     if(wordInQuestion == null)
                     {
-                        Console.WriteLine("Word does not exsist");
+                        ColorConsole.InvalidWordName(wordName);
                         continue;
                     }
                     HashSet<int> tagIds = tagsToAdd.Select(tag=>tag.Id).ToHashSet();
@@ -352,19 +350,19 @@ namespace WordsCollection
                     );
                     if (tagsString == "" || wordName == "")
                     {
-                        Console.WriteLine("Invalid Command");
+                        ColorConsole.InvalidCommand();
                         continue;
                     }
                     Tag[] tagsToAdd = Tag.StringToTags(tagsString);
                     if (tagsToAdd.Length == 0)
                     {
-                        Console.WriteLine("No Valid Tags Listed");
+                        ColorConsole.NoValidTags();
                         continue;
                     }
                     WordItem? wordInQuestion = GetWord(wordName);
                     if (wordInQuestion == null)
                     {
-                        Console.WriteLine("Word does not exsist");
+                        ColorConsole.InvalidWordName(wordName);
                         continue;
                     }
                     HashSet<int> tagIds = tagsToAdd.Select(tag => tag.Id).ToHashSet();
@@ -397,7 +395,7 @@ namespace WordsCollection
                     }
                     else
                     {
-                        Console.WriteLine("Invalid File Name");
+                        ColorConsole.InvalidPath(newName);
                     }
                 }
                 else if (input.StartsWith("removetags "))
@@ -408,19 +406,19 @@ namespace WordsCollection
                     );
                     if (tagsString == "" || wordName == "")
                     {
-                        Console.WriteLine("Invalid Command");
+                        ColorConsole.InvalidCommand();
                         continue;
                     }
                     Tag[] tagsToRemove = Tag.StringToTags(tagsString);
                     if (tagsToRemove.Length == 0)
                     {
-                        Console.WriteLine("No Valid Tags Listed");
+                        ColorConsole.NoValidTags();
                         continue;
                     }
                     WordItem? wordInQuestion = GetWord(wordName);
                     if (wordInQuestion == null)
                     {
-                        Console.WriteLine("Word does not exsist");
+                        ColorConsole.InvalidWordName(wordName);
                         continue;
                     }
                     HashSet<int> tagIds = tagsToRemove.Select(tag => tag.Id).ToHashSet();
