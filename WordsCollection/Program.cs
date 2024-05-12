@@ -489,7 +489,6 @@ namespace WordsCollection
         static void Help()
         {
 
-            //done
             Console.WriteLine("\n|Utility Commands|");
             Console.WriteLine("<>help -> details all commands");
             Console.WriteLine("<>save -> saves all changes to the file");
@@ -498,40 +497,31 @@ namespace WordsCollection
             Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");
             Console.WriteLine("<>showtags -> shows all tags");
 
-            //done
             Console.WriteLine("\n|Word Alterations|");
             Console.WriteLine("<>createword [WordName] -> adds a new word to the word bank with the name [WordName]");
             Console.WriteLine("<>removeword [WordName] -> removes the word with the name [WordName] if such word exsists");
             Console.WriteLine("<>renameword [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
 
-            //done
             Console.WriteLine("\n|Tag Alterations|");
             Console.WriteLine("<>renametag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
             Console.WriteLine("<>createtag [TagName] -> creates a new tag named [TagName]");
             Console.WriteLine("<>color [TagName] [Color] -> sets the color of [TagName] to [Color]");
             Console.WriteLine("<>deletetag [TagName] -> deletes [TagName] and removes it from all words");
 
-            //done
             Console.WriteLine("\n|Basic Word Searching|");
             Console.WriteLine("<>findwords startswith [string] -> lists all words that start with [string]");
             Console.WriteLine("<>findwords endswith [string] -> lists all words that end with [string]");
             Console.WriteLine("<>findwords contains [string] -> lists all words that contain [string]");
             Console.WriteLine("<>findwords all -> lists all words");
+            Console.WriteLine("<>findwords hidetags... -> lists all words that match the selector, but does not include tags in output");
             Console.WriteLine("<>findword [WordName] -> finds the word named [WordName]");
 
-            //done
             Console.WriteLine("\n|Word Searching Using Tags|");
-            Console.WriteLine("<>findwords withtags [TagName] -> lists all words that have the tag [TagName]");
             Console.WriteLine("<>findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
-            //
-            Console.WriteLine("<>findwords withouttags [TagName] -> lists all words that have the tag [TagName]");
-            Console.WriteLine("<>findwords withouttags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
+            Console.WriteLine("<>findwords withouttags [Tag1], [Tag2],... -> lists all words that have none of the tags in [Tag1], [Tag2],...");
 
-            //done
             Console.WriteLine("\n|Tagging Words|");
-            Console.WriteLine("<>addtags [TagName] to [WordName] -> adds the tag [TagName] to the word [WordName]");
             Console.WriteLine("<>addtags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
-            Console.WriteLine("<>removetags [TagName] from [WordName] -> removes [TagName] from [WordName]");
             Console.WriteLine("<>removetags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
             Console.WriteLine("<>forcetags [Tag1], [Tag2],... on [WordName] -> sets the tags of [WordName] to the list of tags");
 
