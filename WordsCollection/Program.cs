@@ -4,7 +4,6 @@ namespace WordsCollection
 {
     internal class Program
     {
-        static List<WordItem> words = new List<WordItem>();
         static void Main(string[] args)
         {
             string name = "WordCollection";
@@ -81,7 +80,7 @@ namespace WordsCollection
                 }
                 else if(input.StartsWith("findwords "))
                 {
-                    List<WordItem> filteredWords = words.ToList();
+                    List<WordItem> filteredWords = WordItem.Items.ToList();
                     string selector = RemoveStartingString(input, "findwords ").Trim();
                     bool hidetags = false;
 
@@ -192,7 +191,7 @@ namespace WordsCollection
                 else if(input.StartsWith("findword "))
                 {
                     string wordName = RemoveStartingString(input, "findword ").Trim();
-                    WordItem? wordInQuestion = GetWord(wordName);
+                    WordItem? wordInQuestion = WordItem.GetWord(wordName);
                     if(wordInQuestion == null)
                     {
                         Console.WriteLine($"Word: [{wordName}] does not exist");
@@ -205,7 +204,7 @@ namespace WordsCollection
                     WordItem wordToAdd = new WordItem(input.Substring(11));
                     if (wordToAdd.word.Length == 0)
                         continue;
-                    words.Add(wordToAdd);
+                    WordItem.Items.Add(wordToAdd);
                 }
                 else if(input.StartsWith("createtag "))
                 {
@@ -217,14 +216,14 @@ namespace WordsCollection
                 else if (input.StartsWith("removeword "))
                 {
                     string wordName = RemoveStartingString(input, "removeword ");
-                    WordItem? wordInQuestion = GetWord(wordName);
+                    WordItem? wordInQuestion = WordItem.GetWord(wordName);
                     if(wordInQuestion == null)
                     {
                         ColorConsole.InvalidWordName(wordName);
                     }
                     else
                     {
-                        words.Remove(wordInQuestion);
+                        WordItem.Items.Remove(wordInQuestion);
                         Console.WriteLine($"Removal of \"{wordName}\" is complete");
                     }
                 }
@@ -232,7 +231,7 @@ namespace WordsCollection
                 {
                     string withoutStart = RemoveStartingString(input, "renameword ");
                     (string oldName, string newName) = SplitOnce(withoutStart, " to ");
-                    WordItem? wordInQuestion = GetWord(oldName);
+                    WordItem? wordInQuestion = WordItem.GetWord(oldName);
                     if(wordInQuestion == null)
                     {
                         ColorConsole.InvalidWordName(oldName);
@@ -304,7 +303,7 @@ namespace WordsCollection
                     }
                     else
                     {
-                        RemoveTagsFromAllWords(new Tag[] {tagInQuestion});
+                        WordItem.RemoveTagsFromAllWords(new Tag[] {tagInQuestion});
                         Tag.Tags.Remove(tagInQuestion);
                         Console.WriteLine($"Tag \"{tagName}\" no longer exists");
                     }
@@ -320,7 +319,7 @@ namespace WordsCollection
                     }
                     else
                     {
-                        RemoveTagsFromAllWords(tags);
+                        WordItem.RemoveTagsFromAllWords(tags);
                         foreach(Tag tag in tags )
                         {
                             Console.Write("Removed tag: ");
@@ -347,7 +346,7 @@ namespace WordsCollection
                         ColorConsole.NoValidTags();
                         continue;
                     }
-                    WordItem? wordInQuestion = GetWord(wordName);
+                    WordItem? wordInQuestion = WordItem.GetWord(wordName);
                     if(wordInQuestion == null)
                     {
                         ColorConsole.InvalidWordName(wordName);
@@ -375,7 +374,7 @@ namespace WordsCollection
                         ColorConsole.NoValidTags();
                         continue;
                     }
-                    WordItem? wordInQuestion = GetWord(wordName);
+                    WordItem? wordInQuestion = WordItem.GetWord(wordName);
                     if (wordInQuestion == null)
                     {
                         ColorConsole.InvalidWordName(wordName);
@@ -405,7 +404,7 @@ namespace WordsCollection
                             else if (c == 'n')
                                 validReply = true;
                         }
-                        words = new();
+                        WordItem.Items = new();
                         Tag.Tags = new();
                         break;
                     }
@@ -431,7 +430,7 @@ namespace WordsCollection
                         ColorConsole.NoValidTags();
                         continue;
                     }
-                    WordItem? wordInQuestion = GetWord(wordName);
+                    WordItem? wordInQuestion = WordItem.GetWord(wordName);
                     if (wordInQuestion == null)
                     {
                         ColorConsole.InvalidWordName(wordName);
@@ -449,6 +448,7 @@ namespace WordsCollection
 
         }
 
+        #region StringHelpers
         public static (string,string) SplitOnce(string line, string seperator) {
 
             int index = line.IndexOf(seperator);
@@ -466,26 +466,10 @@ namespace WordsCollection
         {
             return line.Substring(startsWith.Length);
         }
-        
-        public static void RemoveTagsFromAllWords(Tag[] tagsToRemove)
-        {
-            foreach(WordItem word in words)
-            {
-                List<int> tagIds = word.tagIds.ToList();
-                foreach(Tag tag in tagsToRemove)
-                {
-                    if(tagIds.Contains(tag.Id))
-                        tagIds.Remove(tag.Id);
-                }
-                word.tagIds = tagIds.ToArray();
-            }
-        }
 
-        public static WordItem? GetWord(string name)
-        {
-            return words.FirstOrDefault(word => word.word == name);
-        }
+        #endregion StringHelpers
 
+        #region CommandFunctions
         static void Help()
         {
 
@@ -530,8 +514,9 @@ namespace WordsCollection
             Console.WriteLine("<> -> ");
         }
 
+        #endregion CommandFunctions
 
-
+        #region File
         static bool LoadWords(string filePath)
         {
             if (File.Exists(filePath))
@@ -567,7 +552,7 @@ namespace WordsCollection
 
                     if (word.word.Length == 0)
                         continue;
-                    words.Add(word);
+                    WordItem.Items.Add(word);
                    
 
                 }
@@ -582,7 +567,6 @@ namespace WordsCollection
                 return false;
             }
         }
-
         static void SaveWords(string filePath)
         {
             StreamWriter streamWriter = new StreamWriter(filePath);
@@ -592,12 +576,13 @@ namespace WordsCollection
                 streamWriter.WriteLine(Tag.Tags[i].ToString());
             }
             streamWriter.WriteLine("WordsBegin");
-            for(int j=0;j<words.Count;j++)
+            for(int j=0;j<WordItem.Items.Count;j++)
             {
-                streamWriter.WriteLine(words[j].ToString());
+                streamWriter.WriteLine(WordItem.Items[j].ToString());
             }
             streamWriter.Close();
             streamWriter.Dispose();
         }
+        #endregion File
     }
 }

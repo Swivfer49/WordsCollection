@@ -23,6 +23,7 @@ namespace WordsCollection.Classes
             Console.ForegroundColor = p;
         }
 
+        #region ConsoleErrors
         public static void InvalidCommand()
         {
             WriteError("Invalid Command");
@@ -47,6 +48,6 @@ namespace WordsCollection.Classes
         {
             WriteError($"Invalid tag name: tag \"{tagName}\" does not exist");
         }
-
+        #endregion ConsoleErrors
     }
 }

@@ -9,6 +9,8 @@ namespace WordsCollection.Classes
 {
     internal class WordItem
     {
+        public static List<WordItem> Items = new List<WordItem>();
+
         public string word = "";
         public int[] tagIds = new int[0];
 
@@ -68,6 +70,25 @@ namespace WordsCollection.Classes
                 Tag[] tags = Tag.Tags.Where(t=>tagIds.Contains(t.Id)).ToArray();
                 Tag.WriteTag(tags);
             }
+        }
+
+        public static void RemoveTagsFromAllWords(Tag[] tagsToRemove)
+        {
+            foreach (WordItem word in Items)
+            {
+                List<int> tagIds = word.tagIds.ToList();
+                foreach (Tag tag in tagsToRemove)
+                {
+                    if (tagIds.Contains(tag.Id))
+                        tagIds.Remove(tag.Id);
+                }
+                word.tagIds = tagIds.ToArray();
+            }
+        }
+
+        public static WordItem? GetWord(string name)
+        {
+            return Items.FirstOrDefault(word => word.word == name);
         }
     }
 }

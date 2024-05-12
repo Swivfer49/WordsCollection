@@ -12,7 +12,9 @@ namespace WordsCollection.Classes
         public int Id { get; set; }
         public ConsoleColor Color { get; set; }
 
-        public Tag() {
+        #region Tag Constructors
+        public Tag()
+        {
 
             Id = 0;
             foreach (Tag tag in Tags.OrderBy(t => t.Id))
@@ -29,15 +31,15 @@ namespace WordsCollection.Classes
 
             string[] strings = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            if(strings.Length >= 1)
+            if (strings.Length >= 1)
             {
                 Name = strings[0];
             }
 
             Id = 0;
-            foreach(Tag tag in Tags.OrderBy(t=>t.Id))
+            foreach (Tag tag in Tags.OrderBy(t => t.Id))
             {
-                if(tag.Id == Id)
+                if (tag.Id == Id)
                 {
                     Id++;
                 }
@@ -45,7 +47,7 @@ namespace WordsCollection.Classes
 
             if (strings.Length == 2)
             {
-                if(Enum.TryParse<ConsoleColor>(strings[1], true, out ConsoleColor color))
+                if (Enum.TryParse<ConsoleColor>(strings[1], true, out ConsoleColor color))
                 {
                     Color = color;
                 }
@@ -61,50 +63,52 @@ namespace WordsCollection.Classes
 
         }
 
-        public void WriteTag()
-        {
-            ColorConsole.WriteColor(Name, Color);
-        }
+        #endregion Tag Constructors
+
+        public static List<Tag> Tags = new List<Tag>();
 
         public override string ToString()
         {
             return $"{Name} {Color}";
         }
 
-        public static List<Tag> Tags = new List<Tag>();
-
+        #region WriteTags
+        public void WriteTag()
+        {
+            ColorConsole.WriteColor(Name, Color);
+        }
         public static void WriteTag(Tag tag)
         {
             tag.WriteTag();
         }
-
         public static void WriteTag(Tag[] tags)
         {
-            for(int i=0;i<tags.Length; i++)
+            for (int i = 0; i < tags.Length; i++)
             {
                 tags[i].WriteTag();
-                if(i < tags.Length - 1)
+                if (i < tags.Length - 1)
                 {
                     Console.Write(", ");
                 }
             }
         }
+        #endregion WriteTags
 
+        #region StringToTags
         public static Tag[] StringToTags(string line)
         {
             List<Tag> tags = new List<Tag>();
             string[] tagStrings = line.Split(',', StringSplitOptions.TrimEntries);
-            foreach(string tagString in tagStrings)
+            foreach (string tagString in tagStrings)
             {
                 Tag? tagInQuestion = GetTag(tagString);
-                if(tagInQuestion != null)
+                if (tagInQuestion != null)
                 {
                     tags.Add(tagInQuestion);
                 }
             }
             return tags.ToArray();
         }
-
         public static int[] StringToTagIds(string line)
         {
             List<int> tagIds = new List<int>();
@@ -119,10 +123,11 @@ namespace WordsCollection.Classes
             }
             return tagIds.ToArray();
         }
-
         public static Tag? GetTag(string name)
         {
             return Tags.FirstOrDefault(tag => tag.Name == name);
         }
+
+        #endregion StringToTags
     }
 }
