@@ -27,7 +27,7 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(filePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.6 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.7 |");
 
             if (fileExists)
             {
