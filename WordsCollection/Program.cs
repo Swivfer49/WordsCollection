@@ -83,7 +83,13 @@ namespace WordsCollection
                 {
                     List<WordItem> filteredWords = words.ToList();
                     string selector = RemoveStartingString(input, "findwords ").Trim();
+                    bool hidetags = false;
 
+                    if(selector.StartsWith("hidetags "))
+                    {
+                        selector = RemoveStartingString(selector, "hidetags ");
+                        hidetags = true;
+                    }
                     if(selector == "")
                     {
                         ColorConsole.WriteError("No Selector Specified");
@@ -167,10 +173,20 @@ namespace WordsCollection
                     }
 
 
-                    foreach (WordItem item in filteredWords)
+                    if (hidetags)
                     {
-                        item.WriteWord();
-                        Console.WriteLine();
+                        foreach (WordItem item in filteredWords)
+                        {
+                            Console.WriteLine(item.word);
+                        }
+                    }
+                    else
+                    {
+                        foreach (WordItem item in filteredWords)
+                        {
+                            item.WriteWord();
+                            Console.WriteLine();
+                        }
                     }
                 }
                 else if(input.StartsWith("findword "))
