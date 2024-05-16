@@ -4,6 +4,9 @@ namespace WordsCollection
 {
     internal class Program
     {
+        static bool IsSaved = true;
+        static string currentFilePath = "";
+
         static void Main(string[] args)
         {
             string name = "WordCollection";
@@ -18,23 +21,23 @@ namespace WordsCollection
         {
             string ReturnName = "";
 
-            string filePath = $"./{fileName}.txt";
+            currentFilePath = $"./{fileName}.txt";
 
             //tries to load the file
             //if there is no existing file
             //then there will be no words loaded
             //and, when saved, will create a new file anyways
-            bool fileExists = LoadWords(filePath);
+            bool fileExists = LoadWords(currentFilePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.8 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.9 |");
 
             if (fileExists)
             {
-                Console.WriteLine($"Loaded existing file at [{filePath}]");
+                Console.WriteLine($"Loaded existing file at [{currentFilePath}]");
             }
             else
             {
-                Console.WriteLine($"No file exists at [{filePath}], no words loaded");
+                Console.WriteLine($"No file exists at [{currentFilePath}], no words loaded");
                 Console.WriteLine("A new file will be created upon saving");
             }
 
@@ -42,7 +45,11 @@ namespace WordsCollection
 
             while (!MayExit)
             {
-                ColorConsole.WriteColor($"<{fileName}>",ConsoleColor.DarkMagenta);
+                if(IsSaved)
+                    ColorConsole.WriteColor($"<{fileName}>",ConsoleColor.DarkGreen);
+                else
+                    ColorConsole.WriteColor($"<{fileName}>", ConsoleColor.DarkRed);
+
                 string input = Console.ReadLine()!;
 
                 (string firstWord, string theRest) = SplitAtFirst(input, " ");
@@ -58,13 +65,13 @@ namespace WordsCollection
                         }
                     case "save":
                         {
-                            SaveWords(filePath);
+                            SaveWords(currentFilePath);
                             ColorConsole.Saved();
                             break;
                         }
                     case "exit":
                         {
-                            MayExit = Exit(filePath);
+                            MayExit = Exit();
                             break;
                         }
                     case "clear":
@@ -144,7 +151,7 @@ namespace WordsCollection
                         }
                     case "switchfile":
                         {
-                            if(SwitchFile(theRest, filePath, out string? rn))
+                            if(SwitchFile(theRest, out string? rn))
                             {
                                 if(rn != null)
                                 {
@@ -197,6 +204,7 @@ namespace WordsCollection
 
         #endregion StringHelpers
 
+
         #region CommandFunctions
 
         #region Basic Commands
@@ -243,51 +251,40 @@ namespace WordsCollection
             Console.WriteLine("<>generateword -> ");
             Console.WriteLine("<> -> ");
         }
-        static bool SwitchFile(string input, string filePath, out string? ReturnName)
+        static bool SwitchFile(string input, out string? ReturnName)
         {
+            //if the input is a valid path
             if (input.IndexOfAny(Path.GetInvalidFileNameChars()) == -1)
             {
-                ReturnName = input;
-                Console.WriteLine("Would you like to save? (y/n)");
-                bool validReply = false;
-                while (!validReply)
+                //allow the user to save, not save, or cancel the file switch
+                if (SaveBeforeExitCheck())
                 {
-                    char c = Console.ReadKey().KeyChar;
-                    if (c == 'y')
-                    {
-                        SaveWords(filePath);
-                        validReply = true;
-                    }
-                    else if (c == 'n')
-                        validReply = true;
+                    ReturnName = input;
+                    WordItem.Items = new();
+                    Tag.Tags = new();
+                    return true;
                 }
-                WordItem.Items = new();
-                Tag.Tags = new();
-                return true;
+                //if the user cancels
+                else
+                {
+                    ColorConsole.WriteError("The File-Switch has been cancelled");
+                    ReturnName = null;
+                    return false;
+                }
+
             }
 
+            //if the input is trash
             else
             {
-                ColorConsole.InvalidPath(input);
+                ColorConsole.InvalidPath(input); //make it known
                 ReturnName = null;
                 return false;
             }
         }
-        static bool Exit(string filePath)
+        static bool Exit()
         {
-            Console.WriteLine("Would you like to save? (y/n)");
-            char c = Console.ReadKey().KeyChar;
-            if (c == 'y')
-            {
-                SaveWords(filePath);
-                return true;
-            }
-            else if (c == 'n')
-            {
-                return true;
-            }
-            ColorConsole.InvalidInput(c.ToString());
-            return false;
+            return SaveBeforeExitCheck();
         }
 
         #endregion Basic Commands
@@ -302,6 +299,7 @@ namespace WordsCollection
                 return;
             }
             WordItem.Items.Add(wordToAdd);
+            IsSaved = false;
             wordToAdd.WriteWord();
             Console.WriteLine();
         }
@@ -446,6 +444,7 @@ namespace WordsCollection
             else
             {
                 WordItem.Items.Remove(wordInQuestion);
+                IsSaved = false;
                 Console.WriteLine($"Removal of \"{input}\" is complete");
             }
         }
@@ -466,6 +465,7 @@ namespace WordsCollection
                 else
                 {
                     wordInQuestion.word = newName;
+                IsSaved = false;
                     Console.WriteLine($"\"{oldName}\" renamed to \"{newName}\"");
                 }
             }
@@ -482,6 +482,7 @@ namespace WordsCollection
                 ColorConsole.WriteError("Could not create tag");
                 return;
             }
+            IsSaved = false;
             Tag.Tags.Add(tagToAdd);
         }
         static void ShowTags()
@@ -506,6 +507,7 @@ namespace WordsCollection
                 else
                 {
                     tagInQuestion.Name = newName;
+                    IsSaved = false;
                     Console.WriteLine($"\"{oldName}\" renamed to \"{newName}\"");
                 }
             }
@@ -523,6 +525,7 @@ namespace WordsCollection
 
                 if (Enum.TryParse(colorName, true, out ConsoleColor color) && tagInQuestion != null)
                 {
+                    IsSaved = false;
                     tagInQuestion.Color = color;
                 }
                 else
@@ -542,6 +545,7 @@ namespace WordsCollection
             {
                 WordItem.RemoveTagsFromAllWords(new Tag[] { tagInQuestion });
                 Tag.Tags.Remove(tagInQuestion);
+                IsSaved = false;
                 Console.WriteLine($"Tag \"{input}\" no longer exists");
             }
         }
@@ -563,6 +567,7 @@ namespace WordsCollection
                     Console.WriteLine();
                     Tag.Tags.Remove(tag);
                 }
+                IsSaved = false;
             }
         }
         static void AddTags(string input)
@@ -589,6 +594,7 @@ namespace WordsCollection
             wordInQuestion.tagIds = tagIds.Concat(wordInQuestion.tagIds).ToArray();
             wordInQuestion.WriteWord();
             Console.WriteLine();
+            IsSaved = false;
         }
         static void ForceTags(string input)
         {
@@ -614,6 +620,7 @@ namespace WordsCollection
             wordInQuestion.tagIds = tagIds.ToArray();
             wordInQuestion.WriteWord();
             Console.WriteLine();
+            IsSaved = false;
         }
         static void RemoveTags(string input)
         {
@@ -646,6 +653,29 @@ namespace WordsCollection
         #endregion CommandFunctions
 
         #region File
+        static bool SaveBeforeExitCheck()
+        {
+            //don't bother saving if there is no changes
+            if (IsSaved)
+                return true;//can exit
+
+            //get input
+            Console.WriteLine("Would you like to save? (y/n)");
+            char c = Console.ReadKey().KeyChar;
+            Console.WriteLine();
+            if (c == 'y')//yes
+            {
+                SaveWords(currentFilePath);
+                return true;//can exit
+            }
+            else if (c == 'n')//no
+            {
+                return true;//can exit
+            }
+            //console an error with the input
+            ColorConsole.InvalidInput(c.ToString());
+            return false;//cannot exit
+        }
         static bool LoadWords(string filePath)
         {
             if (File.Exists(filePath))
@@ -711,6 +741,7 @@ namespace WordsCollection
             }
             streamWriter.Close();
             streamWriter.Dispose();
+            IsSaved = true;
         }
         #endregion File
     }
