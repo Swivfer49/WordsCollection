@@ -23,7 +23,16 @@ namespace WordsCollection.Classes
             Console.ForegroundColor = p;
         }
 
+        public static void Saved()
+        {
+            WriteLineColor("Saved", ConsoleColor.Green);
+        }
+
         #region ConsoleErrors
+        public static void InvalidInput(string input)
+        {
+            WriteError($"\"{input}\" is not a valid input");
+        }
         public static void InvalidCommand()
         {
             WriteError("Invalid Command");
