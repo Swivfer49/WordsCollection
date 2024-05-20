@@ -29,8 +29,9 @@ namespace WordsCollection
             //and, when saved, will create a new file anyways
             bool fileExists = LoadWords(currentFilePath);
 
-            Console.WriteLine("|E-SALT: word edition| version 0.9 |");
+            Console.WriteLine("|E-SALT: word edition| version 0.10 |");
 
+            IsSaved = fileExists;
             if (fileExists)
             {
                 Console.WriteLine($"Loaded existing file at [{currentFilePath}]");
@@ -212,44 +213,45 @@ namespace WordsCollection
         {
 
             Console.WriteLine("\n|Utility Commands|");
-            Console.WriteLine("<>help -> details all commands");
-            Console.WriteLine("<>save -> saves all changes to the file");
-            Console.WriteLine("<>exit -> exits the program, saving if the user wishes");
-            Console.WriteLine("<>clear -> clears the console");
-            Console.WriteLine("<>switchfile [Name] -> switches to a new file with the name [Name]");
-            Console.WriteLine("<>showtags -> shows all tags");
+            Console.WriteLine("- help -> details all commands");
+            Console.WriteLine("- save -> saves all changes to the file");
+            Console.WriteLine("- exit -> exits the program");
+            Console.WriteLine("- clear -> clears the console");
+            Console.WriteLine("- switchfile [Name] -> switches to the file with the name [Name], it will create a new one if the file does not exist");
+            Console.WriteLine("- showtags -> shows all tags");
 
             Console.WriteLine("\n|Word Alterations|");
-            Console.WriteLine("<>createword [WordName] -> adds a new word to the word bank with the name [WordName]");
-            Console.WriteLine("<>removeword [WordName] -> removes the word with the name [WordName] if such word exsists");
-            Console.WriteLine("<>renameword [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
+            Console.WriteLine("- createword [WordName] -> adds a new word to the word bank with the name [WordName]");
+            Console.WriteLine("- createword [WordName] - [Tag1], [Tag2],... -> adds a new word to the word bank with the name [WordName], inluding the tags [Tag1], [Tag2],...");
+            Console.WriteLine("- removeword [WordName] -> removes the word with the name [WordName] if such word exsists");
+            Console.WriteLine("- renameword [WordName] to [NewName] -> renames the word with the name [WordName] to [NewName]");
 
             Console.WriteLine("\n|Tag Alterations|");
-            Console.WriteLine("<>renametag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
-            Console.WriteLine("<>createtag [TagName] -> creates a new tag named [TagName]");
-            Console.WriteLine("<>color [TagName] [Color] -> sets the color of [TagName] to [Color]");
-            Console.WriteLine("<>deletetag [TagName] -> deletes [TagName] and removes it from all words");
+            Console.WriteLine("- renametag [TagName] to [NewName] -> renames the tag with the name [TagName] to [NewName]");
+            Console.WriteLine("- createtag [TagName] [Color](Optional) -> creates a new tag named [TagName] with the color [Color]");
+            Console.WriteLine("- color [TagName] [Color] -> sets the color of [TagName] to [Color]");
+            Console.WriteLine("- deletetag [TagName] -> deletes [TagName] and removes it from all words");
 
             Console.WriteLine("\n|Basic Word Searching|");
-            Console.WriteLine("<>findwords startswith [string] -> lists all words that start with [string]");
-            Console.WriteLine("<>findwords endswith [string] -> lists all words that end with [string]");
-            Console.WriteLine("<>findwords contains [string] -> lists all words that contain [string]");
-            Console.WriteLine("<>findwords all -> lists all words");
-            Console.WriteLine("<>findwords hidetags... -> lists all words that match the selector, but does not include tags in output");
-            Console.WriteLine("<>findword [WordName] -> finds the word named [WordName]");
+            Console.WriteLine("- findwords startswith [string] -> lists all words that start with [string]");
+            Console.WriteLine("- findwords endswith [string] -> lists all words that end with [string]");
+            Console.WriteLine("- findwords contains [string] -> lists all words that contain [string]");
+            Console.WriteLine("- findwords all -> lists all words");
+            Console.WriteLine("- findwords hidetags... -> lists all words that match the selector, but does not include tags in output");
+            Console.WriteLine("- findword [WordName] -> finds the word named [WordName]");
 
             Console.WriteLine("\n|Word Searching Using Tags|");
-            Console.WriteLine("<>findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
-            Console.WriteLine("<>findwords withouttags [Tag1], [Tag2],... -> lists all words that have none of the tags in [Tag1], [Tag2],...");
+            Console.WriteLine("- findwords withtags [Tag1], [Tag2],... -> lists all words that have all the tags in [Tag1], [Tag2],...");
+            Console.WriteLine("- findwords withouttags [Tag1], [Tag2],... -> lists all words that have none of the tags in [Tag1], [Tag2],...");
 
             Console.WriteLine("\n|Tagging Words|");
-            Console.WriteLine("<>addtags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
-            Console.WriteLine("<>removetags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
-            Console.WriteLine("<>forcetags [Tag1], [Tag2],... on [WordName] -> sets the tags of [WordName] to the list of tags");
+            Console.WriteLine("- addtags [Tag1], [Tag2],... to [WordName] -> adds all tags in [Tag1], [Tag2],... to the word [WordName]");
+            Console.WriteLine("- removetags [Tag1], [Tag2],... from [WordName] -> removes all tags [Tag1], [Tag2],... from [WordName]");
+            Console.WriteLine("- forcetags [Tag1], [Tag2],... on [WordName] -> sets the tags of [WordName] to the list of tags");
 
-            Console.WriteLine("\n||");
-            Console.WriteLine("<>generateword -> ");
-            Console.WriteLine("<> -> ");
+            //Console.WriteLine("\n||");
+            //Console.WriteLine("- generateword -> ");
+            //Console.WriteLine("-  -> ");
         }
         static bool SwitchFile(string input, out string? ReturnName)
         {
@@ -300,6 +302,7 @@ namespace WordsCollection
             }
             WordItem.Items.Add(wordToAdd);
             IsSaved = false;
+            Console.Write("Word created: ");
             wordToAdd.WriteWord();
             Console.WriteLine();
         }
@@ -348,7 +351,7 @@ namespace WordsCollection
                         filteredWords = filteredWords.Where(word => word.word.Contains(requirement)).ToList();
                         break;
                     }
-                case "endsswith":
+                case "endswith":
                     {
                         if (requirement == "")
                         {
@@ -403,7 +406,7 @@ namespace WordsCollection
                 default:
                     {
                         ColorConsole.InvalidCommand();
-                        break;
+                        return;
                     }
             }
 
@@ -428,7 +431,7 @@ namespace WordsCollection
             WordItem? wordInQuestion = WordItem.GetWord(input);
             if (wordInQuestion == null)
             {
-                Console.WriteLine($"Word: [{input}] does not exist");
+                ColorConsole.InvalidWordName(input);
                 return;
             }
             wordInQuestion.WriteWord();
@@ -484,6 +487,9 @@ namespace WordsCollection
             }
             IsSaved = false;
             Tag.Tags.Add(tagToAdd);
+            Console.Write("Created tag ");
+            tagToAdd.WriteTag();
+            Console.WriteLine();
         }
         static void ShowTags()
         {
@@ -527,6 +533,8 @@ namespace WordsCollection
                 {
                     IsSaved = false;
                     tagInQuestion.Color = color;
+                    Console.Write($"Tag \"{tagInQuestion.Name}\" is now ");
+                    ColorConsole.WriteLineColor(color.ToString(), color);
                 }
                 else
                 {
