@@ -2,7 +2,7 @@ This is a work in progress console application with the purpose of organizing "w
 
 Words can also come with tags.
 
-The reasons why I am making this will be added later
+I made this to help keep track of possible names for characters and places for some of my game ideas
 
 here is a list of all currently available commands
 
